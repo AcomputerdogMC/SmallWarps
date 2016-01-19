@@ -1,3 +1,0 @@
-1.1.0 (1/10/15):
-  *Fixed "Your teleport request has expired." message after a successful TP.
-  *Removed some duplicated code
