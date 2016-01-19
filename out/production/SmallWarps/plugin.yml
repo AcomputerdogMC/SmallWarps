@@ -1,0 +1,89 @@
+name: SmallWarps
+main: net.acomputerdog.smallwarps.PluginSmallWarps
+version: 1.1.0
+description: Adds simple home and spawn warps
+author: acomputerdog
+
+commands:
+  home:
+    description: Teleport to home bed
+    permission: smallwarps.home
+    usage: Incorrect usage!  Use /home
+    aliases: [swhome, swbed, bed]
+  spawn:
+    description: Teleport to world spawn
+    permission: smallwarps.spawn
+    usage: Incorrect usage!  Use /spawn
+    aliases: [swspawn, swworld, worldspawn]
+  back:
+    description: Return to previous warp point
+    permission: smallwarps.back
+    usage: Incorrect usage!  Use /back
+    aliases: [swback, swreturn, return]
+  tpa:
+    description: Request to TP to another player
+    permission: smallwarps.spawn
+    usage: Incorrect usage!  Use /tpa <player>
+    aliases: [swtpa, swtp]
+  tpaccept:
+    description: Accept a TP request
+    usage: Incorrect usage!  Use /tpaccept
+    aliases: [swtpaccept, swaccept, tpal]
+  tpdeny:
+    description: Denys a TP request
+    usage: Incorrect usage!  Use /tpdeny
+    aliases: [swtpdeny, swdeny, tpd]
+  tpcancel:
+    description: Cancels a TP request
+    usage: Incorrect usage!  Use /tpcancel
+    aliases: [swtpcancel, swcancel, tpc]
+  warp:
+    description: TPs to an admin warp
+    permission: smallwarps.warp.use
+    usage: Incorrect usage!  Use /warp <name>
+    aliases: swwarp
+  mkwarp:
+    description: Creates or edits an admin warp
+    permission: smallwarps.warp.edit
+    usage: Incorrect usage!  Use /mkwarp <name> [<world> <x> <y> <z>]
+    aliases: [swmkwarp, makewarp, swmakewarp]
+  rmwarp:
+    description: Removes an admin warp
+    permission: smallwarps.warp.edit
+    usage: Incorrect usage!  Use /rmwarp <name>
+    aliases: [swrmwarp, removewarp, swremovewarp]
+  lswarp:
+    description: Lists admin warps
+    permission: smallwarps.warp.list
+    usage: Incorrect usage!  Use /lswarp
+    aliases: [swlswarp, listwarp, swlistwarp, lswarps, swlswarps, listwarps, swlistwarps]
+  swreload:
+    description: Reload the plugin
+    permission: smallwarps.reload
+    usage: Incorrect usage!  Use /swreload
+
+permissions:
+  smallwarps.home:
+    description: Use /home
+    default: true
+  smallwarps.spawn:
+    description: Use /spawn
+    default: true
+  smallwarps.back:
+    description: Use /back
+    default: true
+  smallwarps.tpa:
+    description: Use /tpa, /tpaccept, /tpdeny, and /tpcancel
+    default: true
+  smallwarps.warp.use:
+    description: Use /warp
+    default: op
+  smallwarps.warp.edit:
+    description: Use /mkwarp and /rmwarp
+    default: op
+  smallwarps.warp.list:
+    description: Use /lswarp
+    default: op
+  smallwarps.reload:
+    description: Use /swreload
+    default: op
