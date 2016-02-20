@@ -1,6 +1,6 @@
 name: SmallWarps
 main: net.acomputerdog.smallwarps.PluginSmallWarps
-version: 1.1.0
+version: 1.2.0
 description: Adds simple home and spawn warps
 author: acomputerdog
 
@@ -87,3 +87,6 @@ permissions:
   smallwarps.reload:
     description: Use /swreload
     default: op
+  smallwarps.tp:
+    description: Force user to be able to access /tp
+    default: false
