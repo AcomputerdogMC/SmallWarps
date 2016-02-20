@@ -61,6 +61,11 @@ commands:
     description: Reload the plugin
     permission: smallwarps.reload
     usage: Incorrect usage!  Use /swreload
+  tp:
+    description: Uses normal /tp but records player position for /back
+    permission: smallwarps.tp.use
+    usage: Incorrect usage!  Use /tp <args>
+    aliases: [swtp, teleport, swteleport]
 
 permissions:
   smallwarps.home:
@@ -87,6 +92,9 @@ permissions:
   smallwarps.reload:
     description: Use /swreload
     default: op
-  smallwarps.tp:
+  smallwarps.tp.force:
     description: Force user to be able to access /tp
     default: false
+  smallwarps.tp.use:
+    description: Allow use of /tp (if vanilla permissions apply)
+    default: true

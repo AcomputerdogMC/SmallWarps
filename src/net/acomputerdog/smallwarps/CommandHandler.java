@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
@@ -57,6 +58,10 @@ public class CommandHandler {
                     break;
                 case "swreload":
                     onCmdReload(player);
+                    break;
+                case "tp":
+                    onCmdTp(player, args);
+                    break;
                 default:
                     sendError(sender, "Unknown command!");
                     getLogger().warning("Received unknown command: " + command.getName() + ".  This is likely a bug, please report it!");
@@ -261,6 +266,24 @@ public class CommandHandler {
             plugin.onDisable();
             plugin.onEnable();
             sendText(p, "Smallwarps has been reloaded.");
+        }
+    }
+
+    private void onCmdTp(Player p, String[] args) {
+        StringBuilder cmd = new StringBuilder((1 + args.length) * 2);
+        cmd.append("minecraft:tp");
+        for (String str : args) {
+            cmd.append(' ');
+            cmd.append(str);
+        }
+        if (p.hasPermission("smallwarps.tp")) { //if player has access to bypass normal /tp permissions
+            PermissionAttachment attachment = p.addAttachment(plugin, 1);
+            attachment.setPermission("bukkit.command.teleport", true);
+            attachment.setPermission("minecraft.command.tp", true);
+        }
+        Location l = p.getLocation();
+        if (p.performCommand(cmd.toString())) { //if player teleported succesfully
+            plugin.returnMap.put(p, l);
         }
     }
 }
