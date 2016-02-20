@@ -17,4 +17,6 @@ Commands:
 * /warp - warp to a mod warp
 * /lswarps - list mod warps
 
+* /tp - passthrough to vanilla tp, but records player position for /back
+
 Curious as to why this readme looks so bad?  So am I.  Look at the source then compare to how it renders, and you'll be even more confused.
