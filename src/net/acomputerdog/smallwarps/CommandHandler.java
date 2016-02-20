@@ -263,8 +263,7 @@ public class CommandHandler {
 
     private void onCmdReload(Player p) {
         if (checkPerms(p, "smallwarps.reload")) {
-            plugin.onDisable();
-            plugin.onEnable();
+            plugin.reload();
             sendText(p, "Smallwarps has been reloaded.");
         }
     }

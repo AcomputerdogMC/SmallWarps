@@ -15,7 +15,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PluginSmallWarps extends JavaPlugin implements Listener {
     public static final long CLEAR_TP_DELAY = 20 * 60; //1 minute in ticks
@@ -29,6 +30,9 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
 
     private CommandHandler commandHandler;
 
+    //don't reset in onEnable or onDisable
+    private boolean reloading = false;
+
     @Override
     public void onEnable() {
         try {
@@ -38,7 +42,9 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
             warpMap = new HashMap<>();
             warpFile = new File(getDataFolder(), "warps.cfg");
             loadWarps();
-            getServer().getPluginManager().registerEvents(this, this);
+            if (!reloading) {
+                getServer().getPluginManager().registerEvents(this, this);
+            }
             commandHandler = new CommandHandler(this);
         } catch (Exception e) {
             getLogger().severe("Exception starting up!");
@@ -196,5 +202,12 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
         l.setX(Math.floor(l.getX()));
         l.setY(Math.floor(l.getY()));
         l.setZ(Math.floor(l.getZ()));
+    }
+
+    public void reload() {
+        reloading = true;
+        onDisable();
+        onEnable();
+        reloading = false;
     }
 }
