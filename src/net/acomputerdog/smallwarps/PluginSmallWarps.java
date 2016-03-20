@@ -21,11 +21,13 @@ import java.util.Map;
 public class PluginSmallWarps extends JavaPlugin implements Listener {
     public static final long CLEAR_TP_DELAY = 20 * 60; //1 minute in ticks
 
+    private static final String WARPS_FILE_VERSION = "1";
+
     Map<Player, Location> returnMap;
     Map<Player, Player> tpMap; //target player -> source player
     Map<Player, Player> tpSourceMap; //source player -> target player
 
-    Map<String, Location> warpMap;
+    Map<String, Warp> warpMap;
     private File warpFile; //format name=world,x,y,z
 
     private CommandHandler commandHandler;
@@ -65,32 +67,84 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
 
     public void loadWarps() throws IOException {
         if (warpFile.isFile()) {
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new FileReader(warpFile));
-                while (in.ready()) {
-                    String line = in.readLine().trim();
-                    if (!line.startsWith("#")) { //skip comments
-                        String[] parts = line.split("=");
-                        if (parts.length == 2) {
-                            String[] locParts = parts[1].split(",");
-                                String name = parts[0];
-                                Location l = parseLoc(locParts);
-                                if (l != null) {
-                                    warpMap.put(name, l);
-                                } else {
-                                    getLogger().warning("Malformed line: \"" + line + "\"");
-                                }
+            try (BufferedReader in = new BufferedReader(new FileReader(warpFile))){
+                String ver = getVersion(in);
+                if (!WARPS_FILE_VERSION.equals(ver)) {
+                    convertWarps(ver, in);
+                } else {
+                    readWarps(in);
+                }
+            }
+        }
+    }
+
+    private String getVersion(BufferedReader in) throws IOException {
+        if (in.ready()) {
+            in.mark(100);
+            String line = in.readLine();
+            //starts with #version= and has more characters
+            int idx = line.indexOf('=');
+            String ver = null;
+            if (line.startsWith("#version=") && line.length() > idx + 1) {
+                ver = line.substring(idx + 1);
+            }
+            in.reset();
+            return ver;
+        }
+        return null;
+    }
+
+    private void convertWarps(String version, BufferedReader in) throws IOException {
+        getLogger().info("Converting warps from version " + version + " to version " + WARPS_FILE_VERSION);
+        if (version == null) {
+            while (in.ready()) {
+                String line = in.readLine().trim();
+                if (!line.startsWith("#")) { //skip comments
+                    String[] parts = line.split("=");
+                    if (parts.length == 2) {
+                        String name = parts[0];
+                        String[] locParts = parts[1].split(",");
+                        String world = locParts[0];
+                        locParts[0] = getServer().getWorlds().get(0).getName(); //hack to fix multiworld bug
+                        Location l = parseLoc(locParts);
+                        if (l != null) {
+                            Warp w = new Warp(this, l.getX(), l.getY(), l.getZ(), world);
+                            warpMap.put(name, w);
                         } else {
                             getLogger().warning("Malformed line: \"" + line + "\"");
                         }
+                    } else {
+                        getLogger().warning("Malformed line: \"" + line + "\"");
                     }
                 }
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException ignored) {}
+            }
+            in.close();
+            saveWarps();
+        } else if ("1".equals(version)) {
+            getLogger().warning("Attempted to convert a supported warps file format, this is a bug!");
+            readWarps(in);
+        } else {
+            getLogger().severe("Unsupported warps file version!  Did you downgrade?");
+        }
+    }
+
+    private void readWarps(BufferedReader in) throws IOException {
+        while (in.ready()) {
+            String line = in.readLine().trim();
+            if (!line.startsWith("#")) { //skip comments
+                String[] parts = line.split("=");
+                if (parts.length == 2) {
+                    //String[] locParts = parts[1].split(",");
+                    String name = parts[0];
+                    Warp w = Warp.parse(this, parts[1]);
+                    //Location l = parseLoc(locParts);
+                    if (w != null) {
+                        warpMap.put(name, w);
+                    } else {
+                        getLogger().warning("Malformed line: \"" + line + "\"");
+                    }
+                } else {
+                    getLogger().warning("Malformed line: \"" + line + "\"");
                 }
             }
         }
@@ -113,16 +167,13 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
         FileWriter writer = null;
         try {
             writer = new FileWriter(warpFile);
-            for (Map.Entry<String, Location> entry : warpMap.entrySet()) {
+            writer.write("#version=");
+            writer.write(WARPS_FILE_VERSION);
+            writer.write("\n");
+            for (Map.Entry<String, Warp> entry : warpMap.entrySet()) {
                 writer.write(entry.getKey());
                 writer.write("=");
-                writer.write(entry.getValue().getWorld().getName());
-                writer.write(",");
-                writer.write(String.valueOf(entry.getValue().getX()));
-                writer.write(",");
-                writer.write(String.valueOf(entry.getValue().getY()));
-                writer.write(",");
-                writer.write(String.valueOf(entry.getValue().getZ()));
+                writer.write(entry.getValue().toString());
                 writer.write("\n");
             }
         } finally {
@@ -176,9 +227,11 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
         }
     }
 
-    public String formatLocation(Location l) {
+    /*
+    public String formatLocation(Warp w) {
         return l.getWorld().getName() + "@" + l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ();
     }
+    */
 
     public boolean removeTP(Player source) {
         Player target = tpSourceMap.remove(source); //remove source

@@ -198,10 +198,10 @@ public class CommandHandler {
     private void onCmdWarp(Player p, String[] args) {
         if (checkPerms(p, "smallwarps.warp.use")) {
             if (checkArgs(p, args.length == 1, "/warp <name>")) {
-                Location warp = plugin.warpMap.get(args[0]);
+                Warp warp = plugin.warpMap.get(args[0]);
                 if (warp != null) {
                     plugin.returnMap.put(p, p.getLocation());
-                    plugin.teleportPlayer(p, warp);
+                    plugin.teleportPlayer(p, warp.getLocation());
                     sendText(p, "Teleported to " + args[0]);
                 } else {
                     sendError(p, "That warp does not exist!");
@@ -220,17 +220,17 @@ public class CommandHandler {
                         World world = plugin.getServer().getWorld(args[1]);
                         if (world != null) {
                             loc = new Location(world, Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
+                            //plugin.warpMap.put(name, Warp.create(plugin, loc));
                         } else {
                             sendError(p, "Error creating warp: that world could not be found!");
                             return;
                         }
                     } else {
                         loc = p.getLocation();
-                        plugin.warpMap.put(name, loc);
-                        sendText(p, "Warp created successfully.");
-                        plugin.safeSaveWarps(p);
                     }
-                    plugin.warpMap.put(name, loc);
+                    plugin.warpMap.put(name, new Warp(plugin, loc));
+                    plugin.safeSaveWarps(p);
+                    sendText(p, "Warp created successfully.");
                 } catch (NumberFormatException e) {
                     sendError(p, "Error creating warp: one or more coordinates is invalid!");
                 }
@@ -241,7 +241,7 @@ public class CommandHandler {
     private void onCmdRmWarp(Player p, String[] args) {
         if (checkPerms(p, "smallwarps.warp.edit")) {
             if (checkArgs(p, args.length >= 1, "/rmwarp <name>")) {
-                Location warp = plugin.warpMap.remove(args[0]);
+                Warp warp = plugin.warpMap.remove(args[0]);
                 if (warp != null) {
                     sendText(p, "Warp removed successfully.");
                     plugin.safeSaveWarps(p);
@@ -255,8 +255,8 @@ public class CommandHandler {
     private void onCmdLsWarp(Player p) {
         if (checkPerms(p, "smallwarps.warp.list")) {
             sendText(p, "Defined warp points: ");
-            for (Map.Entry<String, Location> entry : plugin.warpMap.entrySet()) {
-                sendList(p, entry.getKey() + ": " + plugin.formatLocation(entry.getValue()));
+            for (Map.Entry<String, Warp> entry : plugin.warpMap.entrySet()) {
+                sendList(p, entry.getKey() + ": " + entry.getValue().toString());
             }
         }
     }
