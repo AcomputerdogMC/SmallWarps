@@ -227,12 +227,6 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
         }
     }
 
-    /*
-    public String formatLocation(Warp w) {
-        return l.getWorld().getName() + "@" + l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ();
-    }
-    */
-
     public boolean removeTP(Player source) {
         Player target = tpSourceMap.remove(source); //remove source
         if (target != null) {
@@ -243,11 +237,12 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
     }
 
     public void teleportPlayer(Player p, Location l) {
-        floor(l);
-        l.add(.5, 0, .5);
-        while (l.getBlock().getType().isSolid() && l.getY() <= 255f) {
-            l = l.add(0, 1, 0);
+        floor(l); //align to a block
+        l.add(.5, 0, .5); //center player on the block
+        while (l.getBlock().getType().isSolid() && l.getY() <= 255d) {
+            l = l.add(0, 1, 0); //if TP location is inside block, find safe place above
         }
+        p.setFallDistance(0.0f); //remove fall distance when players TP
         p.teleport(l, PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
