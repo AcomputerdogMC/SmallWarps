@@ -254,7 +254,7 @@ public class CommandHandler {
 
     private void onCmdLsWarp(Player p) {
         if (checkPerms(p, "smallwarps.warp.list")) {
-            sendText(p, "Defined warp points: ");
+            p.sendMessage(ChatColor.YELLOW + "Defined warp points: ");
             for (Map.Entry<String, Warp> entry : plugin.warpMap.entrySet()) {
                 String name = entry.getKey();
                 Warp warp = entry.getValue();
