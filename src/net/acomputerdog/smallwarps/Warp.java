@@ -67,6 +67,10 @@ public class Warp implements Listener {
         return z;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
     public World getWorld() {
         if (world == null) {
             world = server.getWorld(worldName);
@@ -131,6 +135,10 @@ public class Warp implements Listener {
     @Override
     public String toString() {
         return owner + "-" + worldName + "@" + x + "," + y + "," + z;
+    }
+
+    public String locationToString() {
+        return worldName + "@[" + x + ", " + y + ", " + z + "]";
     }
 
     public static Warp parse(JavaPlugin plugin, String str) {
