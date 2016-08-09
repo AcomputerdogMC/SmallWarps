@@ -256,7 +256,7 @@ public class CommandHandler {
         if (checkPerms(p, "smallwarps.warp.list")) {
             sendText(p, "Defined warp points: ");
             for (Map.Entry<String, Warp> entry : plugin.warpMap.entrySet()) {
-                sendList(p, entry.getKey() + ": " + entry.getValue().toString());
+                p.sendMessage(ChatColor.AQUA + entry.getKey() + ": " + ChatColor.BLUE + entry.getValue().toString());
             }
         }
     }
