@@ -108,7 +108,7 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
                         locParts[0] = getServer().getWorlds().get(0).getName(); //hack to fix multiworld bug
                         Location l = parseLoc(locParts);
                         if (l != null) {
-                            Warp w = new Warp(this, l.getX(), l.getY(), l.getZ(), world);
+                            Warp w = new Warp(this, l.getX(), l.getY(), l.getZ(), world, "?");
                             warpMap.put(name, w);
                         } else {
                             getLogger().warning("Malformed line: \"" + line + "\"");

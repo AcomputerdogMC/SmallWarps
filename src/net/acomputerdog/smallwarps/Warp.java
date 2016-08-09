@@ -17,26 +17,31 @@ public class Warp implements Listener {
     private final double y;
     private final double z;
 
-    private String worldName;
+    //should be the owner name, not UUID
+    private final String owner;
+
+    private final String worldName;
     private World world;
 
     private Location location;
 
-    public Warp(JavaPlugin plugin, Location l) {
-        this(plugin, l.getX(), l.getY(), l.getZ(), l.getWorld());
+    public Warp(JavaPlugin plugin, Location l, String owner) {
+        this(plugin, l.getX(), l.getY(), l.getZ(), l.getWorld(), owner);
         this.location = l;
     }
 
-    public Warp(JavaPlugin plugin, double x, double y, double z, String worldName) {
+    public Warp(JavaPlugin plugin, double x, double y, double z, String worldName, String owner) {
         this.server = plugin.getServer();
         this.x = x;
         this.y = y;
         this.z = z;
         this.worldName = worldName;
+        this.owner = owner;
         server.getPluginManager().registerEvents(this, plugin);
     }
 
-    public Warp(JavaPlugin plugin, double x, double y, double z, World world) {
+    public Warp(JavaPlugin plugin, double x, double y, double z, World world, String owner) {
+        /*
         this.server = plugin.getServer();
         this.x = x;
         this.y = y;
@@ -44,7 +49,11 @@ public class Warp implements Listener {
         this.world = world;
         this.worldName = world.getName();
         server.getPluginManager().registerEvents(this, plugin);
+        */
+        this(plugin, x, y, z, world.getName(), owner);
+        this.world = world;
     }
+
 
     public double getX() {
         return x;
@@ -121,25 +130,37 @@ public class Warp implements Listener {
 
     @Override
     public String toString() {
-        return worldName + "@" +x + "," + y + "," + z;
+        return owner + "-" + worldName + "@" + x + "," + y + "," + z;
     }
 
     public static Warp parse(JavaPlugin plugin, String str) {
         if (str != null) {
-            int idx = str.indexOf('@');
-            if (idx > 0) {
-                String worldName = str.substring(0, idx);
-                if (str.length() > idx + 1) {
-                    str = str.substring(idx + 1);
-                    String[] parts = str.split(",");
-                    if (parts.length == 3) {
-                        try {
-                            double x = Double.parseDouble(parts[0]);
-                            double y = Double.parseDouble(parts[1]);
-                            double z = Double.parseDouble(parts[2]);
+            String owner = "?";
+            //get owner (if it exists)
+            int dashIdx = str.indexOf('-');
+            if (dashIdx > 0) {
+                owner = str.substring(0, dashIdx);
+            }
+            if (str.length() > dashIdx + 1) {
+                str = str.substring(dashIdx + 1);
+                //get world
+                int atIdx = str.indexOf('@');
+                if (atIdx > 0) {
+                    String worldName = str.substring(0, atIdx);
+                    if (str.length() > atIdx + 1) {
+                        str = str.substring(atIdx + 1);
+                        //get location
+                        String[] parts = str.split(",");
+                        if (parts.length >= 3) {
+                            try {
+                                double x = Double.parseDouble(parts[0]);
+                                double y = Double.parseDouble(parts[1]);
+                                double z = Double.parseDouble(parts[2]);
 
-                            return new Warp(plugin, x, y, z, worldName);
-                        } catch(NumberFormatException ignored) {} //will return null
+                                return new Warp(plugin, x, y, z, worldName, owner);
+                            } catch (NumberFormatException ignored) {
+                            } //will return null
+                        }
                     }
                 }
             }

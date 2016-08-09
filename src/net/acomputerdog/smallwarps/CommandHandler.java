@@ -228,7 +228,7 @@ public class CommandHandler {
                     } else {
                         loc = p.getLocation();
                     }
-                    plugin.warpMap.put(name, new Warp(plugin, loc));
+                    plugin.warpMap.put(name, new Warp(plugin, loc, p.getName()));
                     plugin.safeSaveWarps(p);
                     sendText(p, "Warp created successfully.");
                 } catch (NumberFormatException e) {
