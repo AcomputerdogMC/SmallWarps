@@ -138,7 +138,7 @@ public class Warp implements Listener {
     }
 
     public String locationToString() {
-        return worldName + "@[" + x + ", " + y + ", " + z + "]";
+        return worldName + "@[" + String.format("%.2f", x) + ", " + String.format("%.2f", y) + ", " + String.format("%.2f", z) + "]";
     }
 
     public static Warp parse(JavaPlugin plugin, String str) {
