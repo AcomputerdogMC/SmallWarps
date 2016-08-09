@@ -63,7 +63,7 @@ public class CommandHandler {
                     onCmdTp(player, args);
                     break;
                 default:
-                    sendError(sender, "Unknown command!");
+                    sendRed(sender, "Unknown command!");
                     getLogger().warning("Received unknown command: " + command.getName() + ".  This is likely a bug, please report it!");
             }
         }
@@ -74,21 +74,21 @@ public class CommandHandler {
         return plugin.getLogger();
     }
 
-    private void sendText(CommandSender p, String message) {
+    private void sendAqua(CommandSender p, String message) {
         p.sendMessage(ChatColor.AQUA + message);
     }
-    
-    private void sendList(CommandSender p, String message) {
+
+    private void sendBlue(CommandSender p, String message) {
         p.sendMessage(ChatColor.BLUE + message);
     }
 
-    private void sendError(CommandSender p, String message) {
+    private void sendRed(CommandSender p, String message) {
         p.sendMessage(ChatColor.RED + message);
     }
 
     private boolean checkPerms(CommandSender p, String perm) {
         if (!p.hasPermission(perm)) {
-            sendError(p, "You do not have perimssion.");
+            sendRed(p, "You do not have perimssion.");
             return false;
         }
         return true;
@@ -96,7 +96,7 @@ public class CommandHandler {
 
     private boolean checkArgs(CommandSender sender, boolean check, String usage) {
         if (!check) {
-            sendError(sender, "Incorrect usage!  Use \"" + usage + "\".");
+            sendRed(sender, "Incorrect usage!  Use \"" + usage + "\".");
         }
         return check;
     }
@@ -106,10 +106,10 @@ public class CommandHandler {
             plugin.returnMap.put(p, p.getLocation());
             Location bed = p.getBedSpawnLocation();
             if (bed == null) {
-                sendError(p, "Home bed is missing or obstructed!");
+                sendRed(p, "Home bed is missing or obstructed!");
             } else {
                 plugin.teleportPlayer(p, bed);
-                sendText(p, "Teleported to home bed.");
+                sendAqua(p, "Teleported to home bed.");
             }
         }
     }
@@ -118,9 +118,9 @@ public class CommandHandler {
         if (checkPerms(p, "smallwarps.spawn")) {
             plugin.returnMap.put(p, p.getLocation());
             plugin.teleportPlayer(p, p.getWorld().getSpawnLocation());
-            sendText(p, "Teleported to world spawn.");
+            sendAqua(p, "Teleported to world spawn.");
         } else {
-            sendError(p, "You do not have permission.");
+            sendRed(p, "You do not have permission.");
         }
     }
 
@@ -129,9 +129,9 @@ public class CommandHandler {
         if (rtn != null) {
             plugin.returnMap.put(p, p.getLocation());
             plugin.teleportPlayer(p, rtn);
-            sendText(p, "Returned to previous warp point.");
+            sendAqua(p, "Returned to previous warp point.");
         } else {
-            sendError(p, "You do not have a previous warp point!");
+            sendRed(p, "You do not have a previous warp point!");
         }
     }
 
@@ -146,14 +146,14 @@ public class CommandHandler {
                         @Override
                         public void run() {
                             if (plugin.removeTP(p)) {
-                                sendText(p, "Your teleport request has expired.");
+                                sendAqua(p, "Your teleport request has expired.");
                             }
                         }
                     }.runTaskLater(plugin, PluginSmallWarps.CLEAR_TP_DELAY);
-                    sendText(p, "Teleport request sent.");
-                    sendText(other, "Player " + p.getName() + " has requested to teleport to you.  Accept the request with /tpaccept, or deny it with /tpdeny.");
+                    sendAqua(p, "Teleport request sent.");
+                    sendAqua(other, "Player " + p.getName() + " has requested to teleport to you.  Accept the request with /tpaccept, or deny it with /tpdeny.");
                 } else {
-                    sendError(p, "That player could not be found!");
+                    sendRed(p, "That player could not be found!");
                 }
             }
         }
@@ -162,25 +162,25 @@ public class CommandHandler {
     private void onCmdTpaccept(Player p) {
         Player source = plugin.tpMap.get(p);
         if (source != null) {
-            sendText(p, "Accepted teleport request from " + source.getName() + ".");
-            sendText(source, "Teleporting to " + p.getName() + ".");
+            sendAqua(p, "Accepted teleport request from " + source.getName() + ".");
+            sendAqua(source, "Teleporting to " + p.getName() + ".");
             plugin.returnMap.put(source, source.getLocation());
             plugin.teleportPlayer(source, p.getEyeLocation());
             plugin.tpMap.remove(p);
             plugin.tpSourceMap.remove(source);
         } else {
-            sendError(p, "No one has requested to teleport to you!");
+            sendRed(p, "No one has requested to teleport to you!");
         }
     }
 
     private void onCmdTpdeny(Player p) {
         Player source = plugin.tpMap.get(p);
         if (source != null) {
-            sendText(p, "Denied teleport request from " + source.getName() + ".");
+            sendAqua(p, "Denied teleport request from " + source.getName() + ".");
             plugin.tpMap.remove(p);
             plugin.tpSourceMap.remove(source);
         } else {
-            sendError(p, "No one has requested to teleport to you!");
+            sendRed(p, "No one has requested to teleport to you!");
         }
     }
 
@@ -188,10 +188,10 @@ public class CommandHandler {
         Player target = plugin.tpSourceMap.get(p);
         if (target != null) {
             plugin.removeTP(p);
-            sendText(target, p.getName() + " has canceled their request to teleport to you.");
-            sendText(p, "Teleport request canceled.");
+            sendAqua(target, p.getName() + " has canceled their request to teleport to you.");
+            sendAqua(p, "Teleport request canceled.");
         } else {
-            sendError(p, "You have not requested to TP to anyone!");
+            sendRed(p, "You have not requested to TP to anyone!");
         }
     }
 
@@ -202,9 +202,9 @@ public class CommandHandler {
                 if (warp != null) {
                     plugin.returnMap.put(p, p.getLocation());
                     plugin.teleportPlayer(p, warp.getLocation());
-                    sendText(p, "Teleported to " + args[0]);
+                    sendAqua(p, "Teleported to " + args[0]);
                 } else {
-                    sendError(p, "That warp does not exist!");
+                    sendRed(p, "That warp does not exist!");
                 }
             }
         }
@@ -222,7 +222,7 @@ public class CommandHandler {
                             loc = new Location(world, Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
                             //plugin.warpMap.put(name, Warp.create(plugin, loc));
                         } else {
-                            sendError(p, "Error creating warp: that world could not be found!");
+                            sendRed(p, "Error creating warp: that world could not be found!");
                             return;
                         }
                     } else {
@@ -230,9 +230,9 @@ public class CommandHandler {
                     }
                     plugin.warpMap.put(name, new Warp(plugin, loc, p.getName()));
                     plugin.safeSaveWarps(p);
-                    sendText(p, "Warp created successfully.");
+                    sendAqua(p, "Warp created successfully.");
                 } catch (NumberFormatException e) {
-                    sendError(p, "Error creating warp: one or more coordinates is invalid!");
+                    sendRed(p, "Error creating warp: one or more coordinates is invalid!");
                 }
             }
         }
@@ -243,10 +243,10 @@ public class CommandHandler {
             if (checkArgs(p, args.length >= 1, "/rmwarp <name>")) {
                 Warp warp = plugin.warpMap.remove(args[0]);
                 if (warp != null) {
-                    sendText(p, "Warp removed successfully.");
+                    sendAqua(p, "Warp removed successfully.");
                     plugin.safeSaveWarps(p);
                 } else {
-                    sendError(p, "Error removing warp: that warp could not be found!");
+                    sendRed(p, "Error removing warp: that warp could not be found!");
                 }
             }
         }
@@ -266,7 +266,7 @@ public class CommandHandler {
     private void onCmdReload(Player p) {
         if (checkPerms(p, "smallwarps.reload")) {
             plugin.reload();
-            sendText(p, "Smallwarps has been reloaded.");
+            sendAqua(p, "Smallwarps has been reloaded.");
         }
     }
 
