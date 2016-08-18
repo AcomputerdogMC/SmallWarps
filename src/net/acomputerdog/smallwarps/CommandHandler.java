@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -220,7 +221,6 @@ public class CommandHandler {
                         World world = plugin.getServer().getWorld(args[1]);
                         if (world != null) {
                             loc = new Location(world, Double.parseDouble(args[2]), Double.parseDouble(args[3]), Double.parseDouble(args[4]));
-                            //plugin.warpMap.put(name, Warp.create(plugin, loc));
                         } else {
                             sendRed(p, "Error creating warp: that world could not be found!");
                             return;
@@ -229,8 +229,9 @@ public class CommandHandler {
                         loc = p.getLocation();
                     }
                     plugin.warpMap.put(name, new Warp(plugin, loc, p.getName()));
-                    plugin.safeSaveWarps(p);
-                    sendAqua(p, "Warp created successfully.");
+                    if (safeSaveWarps(p)) {
+                        sendAqua(p, "Warp created successfully.");
+                    }
                 } catch (NumberFormatException e) {
                     sendRed(p, "Error creating warp: one or more coordinates is invalid!");
                 }
@@ -243,8 +244,9 @@ public class CommandHandler {
             if (checkArgs(p, args.length >= 1, "/rmwarp <name>")) {
                 Warp warp = plugin.warpMap.remove(args[0]);
                 if (warp != null) {
-                    sendAqua(p, "Warp removed successfully.");
-                    plugin.safeSaveWarps(p);
+                    if (safeSaveWarps(p) && safeDeleteWarp(p, warp)) {
+                        sendAqua(p, "Warp removed successfully.");
+                    }
                 } else {
                     sendRed(p, "Error removing warp: that warp could not be found!");
                 }
@@ -287,4 +289,29 @@ public class CommandHandler {
             plugin.returnMap.put(p, l);
         }
     }
+
+    private boolean safeDeleteWarp(CommandSender sender, Warp warp) {
+        try {
+            plugin.recordDeletedWarp(warp);
+            return true;
+        } catch (IOException e) {
+            sender.sendMessage(ChatColor.RED + "An exception occurred saving the warps file!  Please report this!");
+            getLogger().severe("Exception occurred deleting a warp!");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean safeSaveWarps(CommandSender sender) {
+        try {
+            plugin.saveWarps();
+            return true;
+        } catch (IOException e) {
+            sender.sendMessage(ChatColor.RED + "An error occurred saving the warps file!  Please report this!");
+            getLogger().warning("Exception saving warps!");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

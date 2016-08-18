@@ -28,7 +28,8 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
     Map<Player, Player> tpSourceMap; //source player -> target player
 
     Map<String, Warp> warpMap;
-    private File warpFile; //format name=world,x,y,z
+    private File warpFile; //format name=owner-world,x,y,z
+    private File deletedWarpFile; //format name=owner-world,x,y,z
 
     private CommandHandler commandHandler;
 
@@ -43,6 +44,7 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
             tpSourceMap = new HashMap<>();
             warpMap = new HashMap<>();
             warpFile = new File(getDataFolder(), "warps.cfg");
+            deletedWarpFile = new File(getDataFolder(), "deleted_warps.bak");
             loadWarps();
             if (!reloading) {
                 getServer().getPluginManager().registerEvents(this, this);
@@ -63,6 +65,7 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
         warpMap = null;
         warpFile = null;
         commandHandler = null;
+        deletedWarpFile = null;
     }
 
     public void loadWarps() throws IOException {
@@ -150,16 +153,6 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
         }
     }
 
-    public void safeSaveWarps(CommandSender sender) {
-        try {
-            saveWarps();
-        } catch (IOException e) {
-            sender.sendMessage(ChatColor.RED + "An error occurred recording warp points, please report this to an server operator!");
-            getLogger().warning("Exception saving warps!");
-            e.printStackTrace();
-        }
-    }
-
     public void saveWarps() throws IOException {
         if (!getDataFolder().isDirectory()) {
             getDataFolder().mkdirs();
@@ -182,6 +175,12 @@ public class PluginSmallWarps extends JavaPlugin implements Listener {
                     writer.close();
                 } catch (IOException ignored) {}
             }
+        }
+    }
+
+    public void recordDeletedWarp(Warp warp) throws IOException {
+        try (Writer writer = new FileWriter(deletedWarpFile, true)) {
+            writer.write(warp.toString());
         }
     }
 
