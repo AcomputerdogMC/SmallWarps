@@ -23,34 +23,28 @@ public class Warp implements Listener {
     private final String worldName;
     private World world;
 
+    private final String name;
+
     private Location location;
 
-    public Warp(JavaPlugin plugin, Location l, String owner) {
-        this(plugin, l.getX(), l.getY(), l.getZ(), l.getWorld(), owner);
+    public Warp(JavaPlugin plugin, Location l, String owner, String name) {
+        this(plugin, l.getX(), l.getY(), l.getZ(), l.getWorld(), owner, name);
         this.location = l;
     }
 
-    public Warp(JavaPlugin plugin, double x, double y, double z, String worldName, String owner) {
+    public Warp(JavaPlugin plugin, double x, double y, double z, String worldName, String owner, String name) {
         this.server = plugin.getServer();
         this.x = x;
         this.y = y;
         this.z = z;
         this.worldName = worldName;
         this.owner = owner;
+        this.name = name;
         server.getPluginManager().registerEvents(this, plugin);
     }
 
-    public Warp(JavaPlugin plugin, double x, double y, double z, World world, String owner) {
-        /*
-        this.server = plugin.getServer();
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.world = world;
-        this.worldName = world.getName();
-        server.getPluginManager().registerEvents(this, plugin);
-        */
-        this(plugin, x, y, z, world.getName(), owner);
+    public Warp(JavaPlugin plugin, double x, double y, double z, World world, String owner, String name) {
+        this(plugin, x, y, z, world.getName(), owner, name);
         this.world = world;
     }
 
@@ -69,6 +63,10 @@ public class Warp implements Listener {
 
     public String getOwner() {
         return owner;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public World getWorld() {
@@ -134,7 +132,7 @@ public class Warp implements Listener {
 
     @Override
     public String toString() {
-        return owner + "-" + worldName + "@" + x + "," + y + "," + z;
+        return name + "," + owner + "," + worldName + "," + x + "," + y + "," + z;
     }
 
     public String locationToString() {
@@ -143,6 +141,49 @@ public class Warp implements Listener {
 
     public static Warp parse(JavaPlugin plugin, String str) {
         if (str != null) {
+            if (str.indexOf('=') >= 0) {
+                return parseLegacy(plugin, str);
+            } else {
+                return parseCurrent(plugin, str);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parses a current format warp file.
+     * name,owner,world,x,y,z
+     */
+    private static Warp parseCurrent(JavaPlugin plugin, String str) {
+        if (str != null) {
+            String[] parts = str.split(",");
+            if (parts.length == 6) {
+                String name = parts[0];
+                String owner = parts[1];
+                String world = parts[2];
+                try {
+                    double x = Double.parseDouble(parts[3]);
+                    double y = Double.parseDouble(parts[4]);
+                    double z = Double.parseDouble(parts[5]);
+
+                    return new Warp(plugin, x, y, z, world, owner, name);
+                } catch (NumberFormatException ignored) {
+                } //will return null
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parses a legacy warp in the format name=owner-world@x,y,z
+     */
+    private static Warp parseLegacy(JavaPlugin plugin, String str) {
+        //get name (if it exists)
+        int equalsIdx = str.indexOf('=');
+        if (equalsIdx > -1 && equalsIdx < str.length() - 1) {
+            String name = str.substring(0, equalsIdx);
+            str = str.substring(equalsIdx + 1, str.length());
+
             String owner = "?";
             //get owner (if it exists)
             int dashIdx = str.indexOf('-');
@@ -165,7 +206,7 @@ public class Warp implements Listener {
                                 double y = Double.parseDouble(parts[1]);
                                 double z = Double.parseDouble(parts[2]);
 
-                                return new Warp(plugin, x, y, z, worldName, owner);
+                                return new Warp(plugin, x, y, z, worldName, owner, name);
                             } catch (NumberFormatException ignored) {
                             } //will return null
                         }

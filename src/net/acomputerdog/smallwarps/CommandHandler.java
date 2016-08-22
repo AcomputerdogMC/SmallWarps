@@ -228,7 +228,7 @@ public class CommandHandler {
                     } else {
                         loc = p.getLocation();
                     }
-                    plugin.warpMap.put(name, new Warp(plugin, loc, p.getName()));
+                    plugin.warpMap.put(name, new Warp(plugin, loc, p.getName(), name));
                     if (safeSaveWarps(p)) {
                         sendAqua(p, "Warp created successfully.");
                     }
