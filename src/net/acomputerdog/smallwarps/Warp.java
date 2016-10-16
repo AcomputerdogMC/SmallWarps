@@ -19,20 +19,20 @@ public class Warp implements Listener {
 
     //should be the owner name, not UUID
     private final String owner;
+    private final String name;
+    private final long time;
 
     private final String worldName;
     private World world;
 
-    private final String name;
-
     private Location location;
 
     public Warp(JavaPlugin plugin, Location l, String owner, String name) {
-        this(plugin, l.getX(), l.getY(), l.getZ(), l.getWorld(), owner, name);
+        this(plugin, l.getX(), l.getY(), l.getZ(), l.getWorld(), owner, name, now());
         this.location = l;
     }
 
-    public Warp(JavaPlugin plugin, double x, double y, double z, String worldName, String owner, String name) {
+    public Warp(JavaPlugin plugin, double x, double y, double z, String worldName, String owner, String name, long time) {
         this.server = plugin.getServer();
         this.x = x;
         this.y = y;
@@ -40,11 +40,12 @@ public class Warp implements Listener {
         this.worldName = worldName;
         this.owner = owner;
         this.name = name;
+        this.time = time;
         server.getPluginManager().registerEvents(this, plugin);
     }
 
-    public Warp(JavaPlugin plugin, double x, double y, double z, World world, String owner, String name) {
-        this(plugin, x, y, z, world.getName(), owner, name);
+    public Warp(JavaPlugin plugin, double x, double y, double z, World world, String owner, String name, long time) {
+        this(plugin, x, y, z, world.getName(), owner, name, time);
         this.world = world;
     }
 
@@ -67,6 +68,10 @@ public class Warp implements Listener {
 
     public String getName() {
         return name;
+    }
+
+    public long getTime() {
+        return time;
     }
 
     public World getWorld() {
@@ -139,6 +144,10 @@ public class Warp implements Listener {
         return worldName + "@[" + String.format("%.2f", x) + ", " + String.format("%.2f", y) + ", " + String.format("%.2f", z) + "]";
     }
 
+    public static long now() {
+        return System.currentTimeMillis() / 1000L;
+    }
+
     public static Warp parse(JavaPlugin plugin, String str) {
         if (str != null) {
             if (str.indexOf('=') >= 0) {
@@ -157,7 +166,7 @@ public class Warp implements Listener {
     private static Warp parseCurrent(JavaPlugin plugin, String str) {
         if (str != null) {
             String[] parts = str.split(",");
-            if (parts.length == 6) {
+            if (parts.length >= 6) {
                 String name = parts[0];
                 String owner = parts[1];
                 String world = parts[2];
@@ -165,8 +174,12 @@ public class Warp implements Listener {
                     double x = Double.parseDouble(parts[3]);
                     double y = Double.parseDouble(parts[4]);
                     double z = Double.parseDouble(parts[5]);
+                    long time = now();
+                    if (parts.length >= 7) {
+                        time = Long.parseLong(parts[6]);
+                    }
 
-                    return new Warp(plugin, x, y, z, world, owner, name);
+                    return new Warp(plugin, x, y, z, world, owner, name, time);
                 } catch (NumberFormatException ignored) {
                 } //will return null
             }
@@ -206,7 +219,7 @@ public class Warp implements Listener {
                                 double y = Double.parseDouble(parts[1]);
                                 double z = Double.parseDouble(parts[2]);
 
-                                return new Warp(plugin, x, y, z, worldName, owner, name);
+                                return new Warp(plugin, x, y, z, worldName, owner, name, now());
                             } catch (NumberFormatException ignored) {
                             } //will return null
                         }
