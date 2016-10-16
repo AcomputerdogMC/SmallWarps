@@ -21,52 +21,58 @@ public class CommandHandler {
     }
 
     public boolean processCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            switch (command.getName().toLowerCase()) {
-                case "home":
-                    onCmdHome(player);
-                    break;
-                case "spawn":
-                    onCmdSpawn(player);
-                    break;
-                case "back":
-                    onCmdBack(player);
-                    break;
-                case "tpa":
-                    onCmdTpa(player, args);
-                    break;
-                case "tpaccept":
-                    onCmdTpaccept(player);
-                    break;
-                case "tpdeny":
-                    onCmdTpdeny(player);
-                    break;
-                case "tpcancel":
-                    onCmdCancel(player);
-                    break;
-                case "warp":
-                    onCmdWarp(player, args);
-                    break;
-                case "mkwarp":
-                    onCmdMkWarp(player, args);
-                    break;
-                case "rmwarp":
-                    onCmdRmWarp(player, args);
-                    break;
-                case "lswarp":
-                    onCmdLsWarp(player);
-                    break;
-                case "swreload":
-                    onCmdReload(player);
-                    break;
-                case "tp":
-                    onCmdTp(player, args);
-                    break;
-                default:
-                    sendRed(sender, "Unknown command!");
-                    getLogger().warning("Received unknown command: " + command.getName() + ".  This is likely a bug, please report it!");
-            }
+        String cmd = command.getName().toLowerCase();
+        switch (cmd) {
+            case "mkwarp":
+                onCmdMkWarp(sender, args);
+                break;
+            case "rmwarp":
+                onCmdRmWarp(sender, args);
+                break;
+            case "lswarp":
+                onCmdLsWarp(sender);
+                break;
+            case "swreload":
+                onCmdReload(sender);
+                break;
+            default:
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
+                    switch (cmd) {
+                        case "home":
+                            onCmdHome(player);
+                            break;
+                        case "spawn":
+                            onCmdSpawn(player);
+                            break;
+                        case "back":
+                            onCmdBack(player);
+                            break;
+                        case "tpa":
+                            onCmdTpa(player, args);
+                            break;
+                        case "tpaccept":
+                            onCmdTpaccept(player);
+                            break;
+                        case "tpdeny":
+                            onCmdTpdeny(player);
+                            break;
+                        case "tpcancel":
+                            onCmdCancel(player);
+                            break;
+                        case "warp":
+                            onCmdWarp(player, args);
+                            break;
+                        case "tp":
+                            onCmdTp(player, args);
+                            break;
+                        default:
+                            sendRed(sender, "BUG: unknown command.  Please report this!");
+                            getLogger().warning("Received unknown command: " + command.getName() + ".  This is likely a bug, please report it!");
+                    }
+                } else {
+                    sendRed(sender, "That command can only be used by a player.");
+                }
         }
         return true;
     }
@@ -211,7 +217,7 @@ public class CommandHandler {
         }
     }
 
-    private void onCmdMkWarp(Player p, String[] args) {
+    private void onCmdMkWarp(CommandSender p, String[] args) {
         if (checkPerms(p, "smallwarps.warp.edit")) {
             if (checkArgs(p, args.length >= 1, "/mkwarp <name> [<world> <x> <y> <z>]")) {
                 try {
@@ -225,8 +231,11 @@ public class CommandHandler {
                             sendRed(p, "Error creating warp: that world could not be found!");
                             return;
                         }
+                    } else if (p instanceof Player) {
+                        loc = ((Player) p).getLocation();
                     } else {
-                        loc = p.getLocation();
+                        sendRed(p, "You must run this command as a player or manually specify coordinates.");
+                        return;
                     }
                     plugin.warpMap.put(name, new Warp(plugin, loc, p.getName(), name));
                     if (safeSaveWarps(p)) {
@@ -239,7 +248,7 @@ public class CommandHandler {
         }
     }
 
-    private void onCmdRmWarp(Player p, String[] args) {
+    private void onCmdRmWarp(CommandSender p, String[] args) {
         if (checkPerms(p, "smallwarps.warp.edit")) {
             if (checkArgs(p, args.length >= 1, "/rmwarp <name>")) {
                 Warp warp = plugin.warpMap.remove(args[0]);
@@ -254,7 +263,7 @@ public class CommandHandler {
         }
     }
 
-    private void onCmdLsWarp(Player p) {
+    private void onCmdLsWarp(CommandSender p) {
         if (checkPerms(p, "smallwarps.warp.list")) {
             p.sendMessage(ChatColor.YELLOW + "Defined warp points: ");
             for (Map.Entry<String, Warp> entry : plugin.warpMap.entrySet()) {
@@ -265,7 +274,7 @@ public class CommandHandler {
         }
     }
 
-    private void onCmdReload(Player p) {
+    private void onCmdReload(CommandSender p) {
         if (checkPerms(p, "smallwarps.reload")) {
             plugin.reload();
             sendAqua(p, "Smallwarps has been reloaded.");
