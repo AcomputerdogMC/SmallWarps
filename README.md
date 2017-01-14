@@ -1,5 +1,7 @@
 # SmallWarps - A simple warp plugin
----
+
+NOTE: This plugin is no longer under active development.  See BigWarps instead.
+
 SmallWarps is a simple warps plugin designed for PvE minecraft servers.  It allows players to warp to their bed or the world spawn, and mods can create and use named warps.  Returning to death point is also supported, and players can teleport request each other.
 
 Commands:
